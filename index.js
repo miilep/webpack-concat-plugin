@@ -7,6 +7,7 @@ const Concat = require('concat-with-sourcemaps');
 const UglifyJS = require('uglify-es');
 const createHash = require('crypto').createHash;
 const path = require('path');
+const upath = require('upath');
 const globby = require('globby');
 const validateOptions = require('schema-utils');
 const htmlWebpackPlugin = require('html-webpack-plugin');
@@ -56,30 +57,42 @@ class ConcatPlugin {
         const hashRegExp = /\[hash(?:(?::)([\d]+))?\]/;
 
         if (this.settings.useHash || hashRegExp.test(filePath)) {
-            const fileMd5 = this.md5File(files);
+            const fileHash = this.hashFile(files);
 
             if (!hashRegExp.test(filePath)) {
                 filePath = filePath.replace(/\.js$/, '.[hash].js');
             }
 
             const regResult = hashRegExp.exec(filePath);
-            const hashLength = regResult[1] ? Number(regResult[1]) : 20;
+            const hashLength = regResult[1] ? Number(regResult[1]) : fileHash.length;
 
-            filePath = filePath.replace(hashRegExp, fileMd5.slice(0, hashLength));
+            filePath = filePath.replace(hashRegExp, fileHash.slice(0, hashLength));
         }
         return filePath.replace(fileRegExp, this.settings.name);
     }
 
-    md5File(files) {
-        if (this.fileMd5 && !this.needCreateNewFile) {
-            return this.fileMd5;
+    hashFile(files) {
+        if (this.fileHash && !this.needCreateNewFile) {
+            return this.fileHash;
         }
         const content = Object.keys(files)
             .reduce((fileContent, fileName) => (fileContent + files[fileName]), '');
 
-        this.fileMd5 = createHash('md5').update(content).digest('hex');
+        const { hashFunction = 'md5', hashDigest = 'hex' } = this.settings;
+        this.fileHash = createHash(hashFunction).update(content).digest(hashDigest);
+        if (hashDigest === 'base64') {
+          // these are not safe url characters.
+          this.fileHash = this.fileHash.replace(/[/+=]/g, (c) => {
+            switch (c) {
+              case '/': return '_';
+              case '+': return '-';
+              case '=': return '';
+              default: return c;
+            }
+          });
+        }
 
-        return this.fileMd5;
+        return this.fileHash;
     }
 
     getRelativePathAsync(context) {
@@ -147,7 +160,7 @@ class ConcatPlugin {
                                 }
                                 else {
                                     resolve({
-                                        [filePath.replace(compiler.options.context, '')]: data.toString()
+                                        ['webpack:///' + upath.relative(compiler.options.context, filePath)]: data.toString()
                                     });
                                 }
                             });
@@ -183,7 +196,8 @@ class ConcatPlugin {
 
             if (this.settings.sourceMap) {
                 options.sourceMap = {
-                    url: `${fileBaseName}.map`
+                    url: `${fileBaseName}.map`,
+                    includeSources: true
                 };
             }
 
@@ -268,7 +282,7 @@ class ConcatPlugin {
         const processCompiling = (compilation, callback) => {
             self.filesToConcatAbsolutePromise.then(filesToConcatAbsolute => {
                 for (const f of filesToConcatAbsolute) {
-                    compilation.fileDependencies.add(f);
+                    compilation.fileDependencies.add(path.relative(compiler.options.context, f));
                 }
                 if (!dependenciesChanged(compilation, filesToConcatAbsolute)) {
                     return callback();
