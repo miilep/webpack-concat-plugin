@@ -1,6 +1,6 @@
 {
   "name": "webpack-concat-plugin",
-  "version": "3.0.1",
+  "version": "4.0.0",
   "author": "huangxueliang",
   "description": "Webpack file concatenation.",
   "license": "ISC",

@@ -1,5 +1,8 @@
 ## Change History
 
+### v4.0.0 (2020-05-26)
+* Version
+
 ### v3.0.1 (2020-05-26)
 * Support html-webpack-plugin 4.x
 * Better hashing. thanks to [ddumont](https://github.com/ddumont)
