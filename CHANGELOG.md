@@ -1,6 +1,7 @@
 ## Change History
-### v3.0.0 (2018-06-08)
-* support webpack4.0.0
+
+### v3.0.1 (2020-05-26)
+* Support html-webpack-plugin 4.x
 * Better hashing. thanks to [ddumont](https://github.com/ddumont)
 * Use same location as webpack's other sourcmaps. thanks to [ddumont](https://github.com/ddumont)
 
