@@ -1,6 +1,6 @@
 {
   "name": "webpack-concat-plugin",
-  "version": "3.0.0-beta.0",
+  "version": "3.0.1",
   "author": "huangxueliang",
   "description": "Webpack file concatenation.",
   "license": "ISC",
@@ -23,7 +23,7 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.1",
-    "html-webpack-plugin": "^4.0.0-beta.4",
+    "html-webpack-plugin": "^4.3.0",
     "is-object": "^1.0.1",
     "jest": "^22.4.2",
     "webpack": "^4.0.1"
