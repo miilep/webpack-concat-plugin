@@ -1,5 +1,8 @@
 ## Change History
 
+### v4.0.1 (2020-12-18)
+* Update to hooks
+
 ### v4.0.0 (2020-05-26)
 * Version
 
